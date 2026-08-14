@@ -5,10 +5,10 @@
   --color-background: #0b0b12;
   --color-foreground: #f5f3ff;
 
-  --color-primary: #7c5cff;      /* violet — brand, primary CTAs */
+  --color-primary: #4f46e5;      /* indigo — bridges the logo's blue and violet's premium feel */
   --color-primary-foreground: #ffffff;
 
-  --color-accent: #fbbf24;       /* amber — XP, hearts, rewards, highlights */
+  --color-accent: #fbbf24;       /* amber/gold — unchanged, matches desamiGold.png for gamification */
   --color-accent-foreground: #1a1400;
 
   --color-muted: #1a1826;
