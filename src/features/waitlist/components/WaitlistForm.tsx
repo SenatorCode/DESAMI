@@ -26,15 +26,18 @@ export function WaitlistForm() {
   const onSubmit = (values: WaitlistFormValues) => mutation.mutate(values)
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md" noValidate>
+    <form id="waitlist-form" onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md" noValidate>
+      <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Email address
+      </label>
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
           <input
+            id="email"
             type="email"
             inputMode="email"
             autoComplete="email"
-            placeholder="you@example.com"
-            aria-label="Email address"
+            placeholder="you@university.edu"
             aria-invalid={!!errors.email}
             className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-foreground placeholder:text-muted-foreground outline-none ring-primary/50 focus:ring-2"
             {...register('email')}
@@ -43,9 +46,9 @@ export function WaitlistForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-12 shrink-0 rounded-xl bg-primary px-6 font-medium text-primary-foreground transition active:scale-[0.98] disabled:opacity-60"
+          className="h-12 shrink-0 rounded-xl bg-accent px-6 font-medium text-accent-foreground transition active:scale-[0.98] disabled:opacity-60"
         >
-          {isSubmitting ? 'Joining…' : 'Join waitlist'}
+          {isSubmitting ? 'Joining…' : 'Secure My Spot'}
         </button>
       </div>
       {errors.email && (

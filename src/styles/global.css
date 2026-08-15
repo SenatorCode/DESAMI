@@ -1,20 +1,37 @@
-/* src/styles/globals.css */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  --color-background: #ffffff;
+  --color-foreground: #0b0b12;
+  --color-primary: #4f46e5;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #fbbf24;
+  --color-accent-foreground: #1a1400;
+  --color-muted: #f1f0f7;
+  --color-muted-foreground: #55516b;
+  --color-success: #059669;
+  --color-destructive: #dc2626;
+  --color-border: #e4e2ef;
+  --color-clutch: #ef4444;
+  --color-clutch-foreground: #ffffff;
+}
+
+.dark {
   --color-background: #0b0b12;
   --color-foreground: #f5f3ff;
-
-  --color-primary: #4f46e5;      /* indigo — bridges the logo's blue and violet's premium feel */
-  --color-primary-foreground: #ffffff;
-
-  --color-accent: #fbbf24;       /* amber/gold — unchanged, matches desamiGold.png for gamification */
-  --color-accent-foreground: #1a1400;
-
   --color-muted: #1a1826;
   --color-muted-foreground: #a3a0b8;
-
   --color-success: #34d399;
   --color-destructive: #f87171;
   --color-border: #262338;
+  --color-clutch: #f87171;
+  /* primary/accent stay identical in both modes — brand color shouldn't shift */
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
