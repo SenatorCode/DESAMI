@@ -14,7 +14,7 @@ export function Hero() {
             Coming soon
           </span>
           <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-            The future of personalized learning is almost here
+            The Future of Personalized Learning is Almost Here
           </h1>
           <p className="mx-auto mt-5 max-w-md text-balance text-base text-muted-foreground sm:text-lg md:mx-0">
             Transform passive reading into active mastery. Join the waitlist and
