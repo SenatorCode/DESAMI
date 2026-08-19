@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { waitlistSchema, type WaitlistFormValues } from '../schema'
-import { mockJoinWaitlist } from '../api'
+import { joinWaitlist } from '../api'
 
 export function WaitlistForm() {
   const {
@@ -15,13 +15,13 @@ export function WaitlistForm() {
   } = useForm<WaitlistFormValues>({ resolver: zodResolver(waitlistSchema) })
 
   const mutation = useMutation({
-    mutationFn: mockJoinWaitlist,
-    onSuccess: (data) => {
-      toast.success(`You're #${data.position} on the list`)
-      reset()
-    },
-    onError: () => toast.error('Could not join the waitlist. Try again.'),
-  })
+  mutationFn: joinWaitlist,
+  onSuccess: (data) => {
+    toast.success(`You're #${data.id} on the list!`)
+    reset()
+  },
+  onError: (error: Error) => toast.error(error.message),
+})
 
   const onSubmit = (values: WaitlistFormValues) => mutation.mutate(values)
 
