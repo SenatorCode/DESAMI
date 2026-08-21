@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { waitlistSchema, type WaitlistFormValues } from '../schema'
 import { joinWaitlist } from '../api'
 
@@ -10,20 +11,21 @@ export function WaitlistForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<WaitlistFormValues>({ resolver: zodResolver(waitlistSchema) })
 
   const mutation = useMutation({
-  mutationFn: joinWaitlist,
-  onSuccess: (data) => {
-    toast.success(`You're #${data.id} on the list!`)
-    reset()
-  },
-  onError: (error: Error) => toast.error(error.message),
-})
+    mutationFn: joinWaitlist,
+    onSuccess: (data) => {
+      toast.success(`You're #${data.id} on the list!`)
+      reset()
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
 
   const onSubmit = (values: WaitlistFormValues) => mutation.mutate(values)
+  const isLoading = mutation.isPending
 
   return (
     <form id="waitlist-form" onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md" noValidate>
@@ -39,16 +41,18 @@ export function WaitlistForm() {
             autoComplete="email"
             placeholder="you@university.edu"
             aria-invalid={!!errors.email}
-            className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-foreground placeholder:text-muted-foreground outline-none ring-primary/50 focus:ring-2"
+            disabled={isLoading}
+            className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-foreground placeholder:text-muted-foreground outline-none ring-primary/50 focus:ring-2 disabled:opacity-60"
             {...register('email')}
           />
         </div>
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="h-12 shrink-0 rounded-xl bg-accent px-6 font-medium text-accent-foreground transition active:scale-[0.98] disabled:opacity-60"
+          disabled={isLoading}
+          className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-medium text-accent-foreground transition active:scale-[0.98] disabled:opacity-60"
         >
-          {isSubmitting ? 'Joining…' : 'Secure My Spot'}
+          {isLoading && <Loader2 size={16} className="animate-spin" />}
+          {isLoading ? 'Joining…' : 'Secure My Spot'}
         </button>
       </div>
       {errors.email && (
