@@ -1,15 +1,34 @@
-// Stub only — inert until VITE_GOOGLE_CLIENT_ID is set AND the token flow
-// (OAuth access_token vs Identity Services id_token) is confirmed with backend.
-// Swap for @react-oauth/google's real button once both are settled.
+import { useGoogleLogin } from '@react-oauth/google'
+import { toast } from 'sonner'
+import { loginWithGoogle } from '../api'
+import { extractErrorMessage } from '@/lib/axios'
+import { useAuthStore } from '@/store/auth'
+import { useAuthRedirect } from '../useAuthRedirect'
+
 export function GoogleAuthButton() {
-  const configured = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID)
+  const setTokens = useAuthStore((s) => s.setTokens)
+  const redirectAfterAuth = useAuthRedirect()
+
+  const googleLogin = useGoogleLogin({
+    flow: 'implicit', // gives us a real OAuth access_token, as confirmed with backend
+    onSuccess: async (tokenResponse) => {
+      try {
+        const tokens = await loginWithGoogle(tokenResponse.access_token)
+        setTokens(tokens.access_token, tokens.refresh_token)
+        toast.success('Welcome!')
+        await redirectAfterAuth()
+      } catch (error) {
+        toast.error(extractErrorMessage(error))
+      }
+    },
+    onError: () => toast.error('Google sign-in failed. Try again.'),
+  })
 
   return (
     <button
       type="button"
-      disabled={!configured}
-      title={configured ? undefined : 'Google sign-in coming soon'}
-      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+      onClick={() => googleLogin()}
+      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-medium text-foreground transition hover:bg-muted active:scale-[0.98]"
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
