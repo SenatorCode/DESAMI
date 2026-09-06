@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { signupSchema, type SignupFormValues } from '../schema'
 import { signup } from '../api'
+import { extractErrorMessage } from '@/lib/axios'
 
 export function SignupForm() {
   const navigate = useNavigate()
@@ -17,18 +18,11 @@ export function SignupForm() {
   const mutation = useMutation({
     mutationFn: signup,
     onSuccess: () => {
+      // Register does NOT return tokens (v2.2) — must log in separately.
       toast.success('Account created — log in to continue.')
       navigate('/login')
     },
-    onError: (error: any) => {
-      const details = error?.response?.data?.details
-      const firstError = details ? Object.values(details)[0] : null
-      toast.error(
-        (Array.isArray(firstError) ? firstError[0] : null) ??
-          error?.response?.data?.message ??
-          'Could not create your account. Try again.'
-      )
-    },
+    onError: (error) => toast.error(extractErrorMessage(error)),
   })
 
   const field = (name: keyof SignupFormValues, label: string, type = 'text', autoComplete?: string) => (
