@@ -1,42 +1,37 @@
 // src/features/dashboard/DashboardPage.tsx
 import { useNavigate } from 'react-router-dom'
-import { Loader2, BookOpenCheck, Target, Flame, Plus, Sparkles, ArrowRight } from 'lucide-react'
-import { AppHeader } from '@/components/common/AppHeader'
+import { BookOpenCheck, Target, Flame, Plus, Sparkles, ArrowRight } from 'lucide-react'
+import { PageError, PageLoader } from '@/components/common/PageState'
 import { useUserProfile } from '@/features/profile/hooks/useUserProfile'
 import { StatTile } from './components/StatTile'
 import { RecentSessionCard } from './components/RecentSessionCard'
 import { deriveLevel, placeholderDailyTargetMinutes, placeholderAiInsight } from '@/lib/placeholderContent'
 
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 export function DashboardPage() {
   const navigate = useNavigate()
-  const { data: profile, isLoading, isError } = useUserProfile()
+  const { data: profile, isLoading, isError, refetch } = useUserProfile()
 
-  if (isLoading) {
+    if (isLoading) return <PageLoader />
+
+    if (isError || !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-      </div>
+      <PageError title="Could not load your dashboard" message="Check your connection and try again." onRetry={() => refetch()} />
     )
   }
-
-  if (isError || !profile) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-destructive">
-        Could not load your dashboard.
-      </div>
-    )
-  }
-
   const level = deriveLevel(profile.xp)
 
   return (
-    <main className="min-h-screen bg-muted/20">
-      <AppHeader streak={profile.streak} />
-
-      <div className="mx-auto max-w-7xl px-6 py-10">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold">Good morning, {profile.first_name}</h1>
+            <h1 className="text-2xl font-semibold">{greeting()}, {profile.first_name}</h1>
             <p className="mt-1 text-muted-foreground">Ready to kickstart today's session?</p>
           </div>
 
@@ -85,7 +80,7 @@ export function DashboardPage() {
           />
         </div>
 
-        <div className="mb-10 flex flex-col justify-between gap-6 rounded-2xl bg-primary p-8 text-primary-foreground md:flex-row md:items-center">
+        <div className="mb-10 flex flex-col justify-between gap-6 rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8 md:flex-row md:items-center">
           <div className="max-w-lg">
             <h2 className="text-2xl font-semibold">Start an AI Study Session</h2>
             <p className="mt-2 text-primary-foreground/80">
@@ -140,6 +135,5 @@ export function DashboardPage() {
           </div>
         </div>
       </div>
-    </main>
   )
 }

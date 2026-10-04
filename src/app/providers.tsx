@@ -14,7 +14,15 @@ function ThemeSync() {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient())
+    const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          // Don't hammer a flaky backend, and don't refetch just because the tab regained focus.
+          queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 },
+        },
+      })
+  )
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>

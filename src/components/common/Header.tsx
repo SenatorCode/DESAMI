@@ -1,13 +1,13 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import logoBlue from "@/assets/desamiBlue.png";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuthStore } from "@/store/auth";
+import { useLogout } from "@/features/auth/useLogout";
 
 export function Header() {
   const { pathname } = useLocation()
-  const navigate = useNavigate()
   const accessToken = useAuthStore((s) => s.accessToken)
-  const logout = useAuthStore((s) => s.logout)
+  const logout = useLogout()
 
   const scrollToForm = () => {
     document
@@ -43,10 +43,7 @@ export function Header() {
                 Dashboard
               </Link>
               <button
-                onClick={() => {
-                  logout()
-                  navigate('/login')
-                }}
+                onClick={logout}
                 className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
               >
                 Log out

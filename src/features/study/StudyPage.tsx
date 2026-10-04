@@ -1,31 +1,34 @@
 // src/features/study/StudyPage.tsx
 import {useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Heart, Loader2 } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, Heart } from 'lucide-react'
+import { PageError, PageLoader } from '@/components/common/PageState'
 import { useStudyData } from './hooks/useStudyData'
 import { StudyModuleView } from './components/StudyModuleView'
 import { useStudyRuntimeStore } from '@/store/study'
 
 export function StudyPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
-  const { data, isLoading, isError } = useStudyData(sessionId!)
+  const { data, isLoading, isError, refetch } = useStudyData(sessionId!)
   const [moduleIndex, setModuleIndex] = useState(0)
   const hearts = useStudyRuntimeStore((s) => s.hearts)
   const maxHearts = useStudyRuntimeStore((s) => s.maxHearts)
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (isError || !data) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-destructive">
-        Could not load this study session.
-      </div>
+      <PageError
+        title="Could not load this study session"
+        onRetry={() => refetch()}
+        action={
+          <Link to="/sessions" className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium transition hover:bg-muted">
+            All sessions
+          </Link>
+        }
+      />
     )
   }
 
@@ -34,7 +37,13 @@ export function StudyPage() {
   const outOfHearts = hearts <= 0
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <Link
+        to={`/session/${sessionId}`}
+        className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+      >
+        <ArrowLeft size={14} /> Exit study
+      </Link>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{data.subject_name}</p>

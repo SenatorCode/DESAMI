@@ -12,11 +12,9 @@ import {
   ClipboardCheck,
   Zap,
   Network,
-  Loader2,
 } from 'lucide-react'
-import { AppHeader } from '@/components/common/AppHeader'
+import { PageError, PageLoader } from '@/components/common/PageState'
 import { useStudyData } from '@/features/study/hooks/useStudyData'
-import { useUserProfile } from '@/features/profile/hooks/useUserProfile'
 import {
   placeholderAiSummary,
   placeholderModuleDescription,
@@ -27,22 +25,25 @@ import {
 export function SessionHubPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
-  const { data: profile } = useUserProfile()
-  const { data: study, isLoading, isError } = useStudyData(sessionId!)
+   const { data: study, isLoading, isError, refetch } = useStudyData(sessionId!)
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-      </div>
-    )
-  }
+  if (isLoading) return <PageLoader />
 
-  if (isError || !study) {
+    if (isError || !study) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-destructive">
-        Could not load this session. It may still be processing.
-      </div>
+      <PageError
+        title="Could not load this session"
+        message="It may still be processing, or you may not have access to it."
+        onRetry={() => refetch()}
+        action={
+          <button
+            onClick={() => navigate('/sessions')}
+            className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium transition hover:bg-muted"
+          >
+            All sessions
+          </button>
+        }
+      />
     )
   }
 
@@ -50,10 +51,7 @@ export function SessionHubPage() {
   const fileMeta = placeholderFileMeta()
 
   return (
-    <main className="min-h-screen bg-muted/20">
-      <AppHeader streak={profile?.streak} />
-
-      <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
         <button
           onClick={() => navigate('/sessions')}
           className="mb-6 flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground"
@@ -157,7 +155,6 @@ export function SessionHubPage() {
           </div>
         </div>
       </div>
-    </main>
   )
 }
 
