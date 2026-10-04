@@ -28,7 +28,7 @@ export async function createSession(files: File[]): Promise<Session> {
 export async function getSessionStatus(sessionId: string): Promise<Session> {
   if (USE_MOCKS) return mocks.mockGetSessionStatus(sessionId)
 
-  const { data } = await api.get<Session>(`/api/session/${sessionId}`)
+  const { data } = await api.get<Session>(`/api/session/${sessionId}/`)
   return data
 }
 
@@ -42,7 +42,7 @@ export async function listSessions(): Promise<SessionListItem[]> {
 export async function getStudyData(sessionId: string): Promise<StudyData> {
   if (USE_MOCKS) return mocks.mockGetStudyData(sessionId)
 
-  const { data } = await api.get<StudyData>(`/api/session/${sessionId}/study`)
+  const { data } = await api.get<StudyData>(`/api/session/${sessionId}/study/`)
   return data
 }
 
@@ -53,7 +53,7 @@ export async function saveStudyProgress(
   if (USE_MOCKS) return mocks.mockSaveProgress()
 
   const { data } = await api.post<SaveProgressResponse>(
-    `/api/session/${sessionId}/study/save_progress`,
+    `/api/session/${sessionId}/study/save_progress/`,
     payload
   )
   return data
@@ -67,7 +67,7 @@ export async function getHobbyAnalogy(
   if (USE_MOCKS) return mocks.mockGetHobbyAnalogy()
 
   const { data } = await api.get<HobbyAnalogy>(
-    `/api/session/${sessionId}/study/${moduleId}/${chunkId}/hobby_analogy`
+    `/api/session/${sessionId}/study/${moduleId}/${chunkId}/hobby_analogy/`
   )
   return data
 }
@@ -81,7 +81,7 @@ export async function getExplanation(
   if (USE_MOCKS) return mocks.mockGetExplanation()
 
   const { data } = await api.get<ExplainResponse>(
-    `/api/session/${sessionId}/study/${moduleId}/${chunkId}/${quizId}/explain`
+    `/api/session/${sessionId}/study/${moduleId}/${chunkId}/${quizId}/explain/`
   )
   return data
 }
@@ -89,6 +89,6 @@ export async function getExplanation(
 export async function loseHeart(): Promise<LoseHeartResponse> {
   if (USE_MOCKS) return mocks.mockLoseHeart()
 
-  const { data } = await api.post<LoseHeartResponse>('/api/lose_heart')
+  const { data } = await api.post<LoseHeartResponse>('/api/lose_heart/')
   return data
 }

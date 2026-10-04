@@ -28,12 +28,12 @@ export async function login(values: LoginFormValues): Promise<AuthTokens> {
     payload.username = values.identifier
   }
 
-  const { data } = await api.post<AuthTokens>('/api/login', payload)
+  const { data } = await api.post<AuthTokens>('/api/login/', payload)
   return data
 }
 
 export async function signup(values: SignupFormValues): Promise<SignupResponse> {
-  const { data } = await api.post<SignupResponse>('/api/register', values)
+  const { data } = await api.post<SignupResponse>('/api/register/', values)
   return data
 }
 
