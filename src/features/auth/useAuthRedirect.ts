@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth'
-import { fetchMe, fetchHobbies } from './api'
+import { getUserProfile } from '@/features/profile/api'
+import {fetchHobbies } from './api'
 
 export function useAuthRedirect() {
   const navigate = useNavigate()
@@ -10,7 +11,8 @@ export function useAuthRedirect() {
     // Profile fetch failing shouldn't block routing — dashboard/onboarding
     // can retry it themselves. Log it so it's not invisible.
     try {
-      setUser(await fetchMe())
+      const me = await getUserProfile()
+      setUser({ first_name: me.first_name, last_name: me.last_name, email: me.email, tier: me.tier })
     } catch (err) {
       console.error('[useAuthRedirect] fetchMe failed:', err)
     }

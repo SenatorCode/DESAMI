@@ -6,24 +6,34 @@ interface AuthTokens {
   refresh_token: string;
 }
 
+// Add above signup()
+interface SignupResponse {
+  status: string
+  message: string
+  user_id: number
+}
+
 export async function login(values: LoginFormValues): Promise<AuthTokens> {
   const isEmail = values.identifier.includes('@')
 
-  const { data } = await api.post<AuthTokens>('/api/login/', {
-    username: isEmail ? '' : values.identifier,
-    email: isEmail ? values.identifier : '',
+  // Backend expects either `username` OR `email` present — not both, and not
+  // the unused one sent as an empty string. Omit the key entirely instead.
+  const payload: { username?: string; email?: string; password: string } = {
     password: values.password,
-  })
+  }
+
+  if (isEmail) {
+    payload.email = values.identifier
+  } else {
+    payload.username = values.identifier
+  }
+
+  const { data } = await api.post<AuthTokens>('/api/login', payload)
   return data
 }
 
-export async function signup(values: SignupFormValues) {
-  const { data } = await api.post('/api/register/', values)
-  return data
-}
-
-export async function fetchMe() {
-  const { data } = await api.get('/api/users/me/')
+export async function signup(values: SignupFormValues): Promise<SignupResponse> {
+  const { data } = await api.post<SignupResponse>('/api/register', values)
   return data
 }
 
