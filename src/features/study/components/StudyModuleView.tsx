@@ -103,6 +103,7 @@ export function StudyModuleView({ sessionId, module, onModuleComplete }: StudyMo
             key={currentQuestion.question_id}
             sessionId={sessionId}
             moduleId={module.id}
+            chunks={module.chunks}
             question={currentQuestion}
             onResolved={(firstTryCorrect) => advanceQuestion(currentQuestion.question_id, firstTryCorrect)}
           />

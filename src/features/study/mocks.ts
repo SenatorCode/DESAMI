@@ -112,10 +112,16 @@ export async function mockGetStudyData(sessionId: string): Promise<StudyData> {
   }
 }
 
-export async function mockGetHobbyAnalogy(): Promise<HobbyAnalogy> {
+export async function mockGetHobbyAnalogy(chunkId = 2): Promise<HobbyAnalogy> {
   await delay(700)
+  if (chunkId === 1) {
+    return {
+      id: 1,
+      text: "Think of biology like the full roster of a football league — every club, player and manager is a 'living thing' you can study, and the sport is how they all interact.",
+    }
+  }
   return {
-    id: 2,
+    id: chunkId,
     text: "Imagine Ronaldo passing the ball to Lionel Messi — he controls the exact weight of the pass so it arrives perfectly. That's how neurotransmitters deliver signals between neurons.",
   }
 }

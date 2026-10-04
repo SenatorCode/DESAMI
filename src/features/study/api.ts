@@ -64,7 +64,7 @@ export async function getHobbyAnalogy(
   moduleId: number,
   chunkId: number
 ): Promise<HobbyAnalogy> {
-  if (USE_MOCKS) return mocks.mockGetHobbyAnalogy()
+  if (USE_MOCKS) return mocks.mockGetHobbyAnalogy(chunkId)
 
   const { data } = await api.get<HobbyAnalogy>(
     `/api/session/${sessionId}/study/${moduleId}/${chunkId}/hobby_analogy/`

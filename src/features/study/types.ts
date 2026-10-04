@@ -27,6 +27,11 @@ export interface StudyQuizQuestion {
   question: string
   options: StudyOption[]
   answer: string
+  /**
+   * NOT in the v2.6 spec. If the backend adds it, the correction loop uses it to
+   * fetch the hobby analogy directly; until then the student picks the chunk.
+   */
+  chunk_id?: number
 }
 
 export interface StudyChunk {
