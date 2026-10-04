@@ -19,6 +19,7 @@ const SessionsPage = lazy(() => import('@/features/study/SessionsPage').then((m)
 const SessionHubPage = lazy(() =>
   import('@/features/session-hub/SessionHubPage').then((m) => ({ default: m.SessionHubPage }))
 )
+const VerifyOtpPage = lazy(() => import('@/features/auth/VerifyOtpPage').then((m) => ({ default: m.VerifyOtpPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 
 export function AppRoutes() {
@@ -28,6 +29,7 @@ export function AppRoutes() {
         <Route path="/" element={<WaitlistPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
 
         <Route element={<ProtectedRoute />}>
           {/* Focused screens — no app chrome */}

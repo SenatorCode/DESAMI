@@ -49,12 +49,24 @@ export interface ParsedApiError {
   message: string
   /** Seconds to wait before retrying (OTP resend cooldown, rate limits) */
   retryAfter?: number
+  
   /** Seconds until the next heart regenerates (OUT_OF_HEARTS) */
   timeUntilNextHeart?: number
   isNetworkError: boolean
+  /** Per-field messages from `details` (e.g. { email: 'Email address is already in use.' }) */
+  fieldErrors?: Record<string, string>
 }
 
 const FALLBACK = 'Something went wrong. Please try again.'
+
+function toFieldErrors(details: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [field, value] of Object.entries(details)) {
+    const msg = Array.isArray(value) ? value[0] : value
+    if (msg != null) out[field] = String(msg)
+  }
+  return out
+}
 
 function firstDetail(details: Record<string, unknown>): string | undefined {
   const first = Object.values(details)[0]
@@ -78,6 +90,7 @@ export function parseApiError(error: unknown): ParsedApiError {
     code: body.error_code,
     message: detail ?? body.message ?? FALLBACK,
     retryAfter: typeof body.retry_after === 'number' ? body.retry_after : undefined,
+    fieldErrors: body.details ? toFieldErrors(body.details) : undefined,
     timeUntilNextHeart:
       typeof body.time_until_next_heart === 'number' ? body.time_until_next_heart : undefined,
     isNetworkError: false,

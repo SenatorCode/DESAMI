@@ -6,11 +6,15 @@ interface AuthTokens {
   refresh_token: string;
 }
 
-// Add above signup()
-interface SignupResponse {
-  status: string
+// v2.6: signup no longer creates the account. The backend emails an OTP and
+// returns this; the account exists only after verifyOtp() succeeds.
+export interface SignupResponse {
   message: string
-  user_id: number
+  email: string
+}
+
+interface VerifyOtpResponse {
+  message: string
 }
 
 export async function login(values: LoginFormValues): Promise<AuthTokens> {
@@ -34,6 +38,11 @@ export async function login(values: LoginFormValues): Promise<AuthTokens> {
 
 export async function signup(values: SignupFormValues): Promise<SignupResponse> {
   const { data } = await api.post<SignupResponse>('/api/register/', values)
+  return data
+}
+
+export async function verifyOtp(values: { email: string; otp: string }): Promise<VerifyOtpResponse> {
+  const { data } = await api.post<VerifyOtpResponse>('/api/register/verify-otp/', values)
   return data
 }
 

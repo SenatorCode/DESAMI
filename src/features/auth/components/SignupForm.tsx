@@ -5,24 +5,43 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { signupSchema, type SignupFormValues } from '../schema'
 import { signup } from '../api'
-import { extractErrorMessage } from '@/lib/axios'
+import { ErrorCode, parseApiError } from '@/lib/apiError'
+import { usePendingSignup } from '@/store/pendingSignup'
 
 export function SignupForm() {
   const navigate = useNavigate()
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignupFormValues>({ resolver: zodResolver(signupSchema) })
 
+  const setPending = usePendingSignup((s) => s.setPending)
+
   const mutation = useMutation({
     mutationFn: signup,
-    onSuccess: () => {
-      // Register does NOT return tokens (v2.2) — must log in separately.
-      toast.success('Account created — log in to continue.')
-      navigate('/login')
+    // v2.6: no account yet — the backend emailed an OTP. Keep the details in memory
+    // (needed for "resend") and move to the verification screen.
+    onSuccess: (data, values) => {
+      setPending(values, data.email ?? values.email)
+      toast.success('Check your email for a verification code.')
+      navigate('/verify-otp')
     },
-    onError: (error) => toast.error(extractErrorMessage(error)),
+    onError: (error) => {
+      const { code, message, fieldErrors } = parseApiError(error)
+      if (code === ErrorCode.USERNAME_TAKEN) {
+        setError('username', { message })
+        return
+      }
+      // Field-level validation (e.g. email already in use) goes on the matching input.
+      const known = fieldErrors && Object.keys(fieldErrors).filter((k) => k in signupSchema.shape)
+      if (known && known.length > 0) {
+        known.forEach((k) => setError(k as keyof SignupFormValues, { message: fieldErrors[k] }))
+        return
+      }
+      toast.error(message)
+    },
   })
 
   const field = (name: keyof SignupFormValues, label: string, type = 'text', autoComplete?: string) => (
@@ -57,7 +76,7 @@ export function SignupForm() {
         disabled={mutation.isPending}
         className="h-12 w-full rounded-xl bg-primary font-medium text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
       >
-        {mutation.isPending ? 'Creating account…' : 'Create account'}
+        {mutation.isPending ? 'Sending code…' : 'Create account'}
       </button>
     </form>
   )

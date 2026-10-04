@@ -14,3 +14,10 @@ export const signupSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 export type SignupFormValues = z.infer<typeof signupSchema>
+
+
+// Length is an assumption from the docs' example ("482913") — confirm with the backend dev.
+export const OTP_LENGTH = 6
+export const otpSchema = z.object({
+  otp: z.string().regex(new RegExp(`^\\d{${OTP_LENGTH}}$`), `Enter the ${OTP_LENGTH}-digit code`),
+})
