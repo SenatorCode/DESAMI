@@ -6,12 +6,11 @@ import type { StudyQuizQuestion } from '../types'
 interface CheckInQuestionProps {
   sessionId: string
   moduleId: number
-  chunkId: number
   question: StudyQuizQuestion
   onResolved: (firstTryCorrect: boolean) => void
 }
 
-export function CheckInQuestion({ sessionId, moduleId, chunkId, question, onResolved }: CheckInQuestionProps) {
+export function CheckInQuestion({ sessionId, moduleId, question, onResolved }: CheckInQuestionProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [showCorrection, setShowCorrection] = useState(false)
   const [resolved, setResolved] = useState(false)
@@ -59,7 +58,6 @@ export function CheckInQuestion({ sessionId, moduleId, chunkId, question, onReso
           <CorrectionLoop
             sessionId={sessionId}
             moduleId={moduleId}
-            chunkId={chunkId}
             question={question}
             onValidated={handleValidated}
           />

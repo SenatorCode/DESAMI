@@ -62,7 +62,7 @@ export function DashboardPage() {
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <StatTile
             label="Sessions Completed"
-            value={String(profile.recent.length)}
+            value={String(profile.session_completed)}
             icon={<BookOpenCheck size={16} />}
           />
           <StatTile

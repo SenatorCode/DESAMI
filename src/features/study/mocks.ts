@@ -47,9 +47,9 @@ export async function mockGetSessionStatus(sessionId: string): Promise<Session> 
 export async function mockListSessions(): Promise<SessionListItem[]> {
   await delay(300)
   return [
-    { session_id: 'mock-completed-1', name: 'Biology', status: 'completed' },
-    { session_id: 'mock-completed-2', name: 'Chemistry', status: 'completed' },
-    { session_id: 'mock-failed-1', name: 'Physics', status: 'failed' },
+    { session_id: 'mock-completed-1', name: 'Biology', upload_status: 'completed', visited_last: '2026-08-20T14:32:00Z' },
+    { session_id: 'mock-completed-2', name: 'Chemistry', upload_status: 'completed', visited_last: '2026-08-19T09:10:00Z' },
+    { session_id: 'mock-failed-1', name: 'Physics', upload_status: 'failed', visited_last: '2026-08-18T11:00:00Z' },
   ]
 }
 
@@ -58,7 +58,7 @@ export async function mockGetStudyData(sessionId: string): Promise<StudyData> {
   return {
     session_id: sessionId,
     subject_name: 'Biology',
-    modules: [
+        modules: [
       {
         id: 1,
         title: 'Introduction to Biology',
@@ -66,21 +66,27 @@ export async function mockGetStudyData(sessionId: string): Promise<StudyData> {
           {
             id: 1,
             text: 'Biology is the study of organisms and living things. We will study living things in this session.',
-            quiz: [
-              {
-                question_id: 101,
-                question: 'What is Biology?',
-                options: [
-                  { option_text: 'It is the study of organisms' },
-                  { option_text: 'It is the study of robots' },
-                ],
-                answer: 'It is the study of organisms',
-              },
-            ],
           },
           {
             id: 2,
             text: 'Why is biology important? Biology is important because we study animals and life processes.',
+          },
+        ],
+        quiz: [
+          {
+            question_id: 101,
+            question: 'What is Biology?',
+            options: [
+              { option_text: 'It is the study of organisms' },
+              { option_text: 'It is the study of robots' },
+            ],
+            answer: 'It is the study of organisms',
+          },
+          {
+            question_id: 102,
+            question: 'Is biology the study of living matter?',
+            options: [{ option_text: 'Yes' }, { option_text: 'No' }],
+            answer: 'Yes',
           },
         ],
       },
@@ -91,14 +97,14 @@ export async function mockGetStudyData(sessionId: string): Promise<StudyData> {
           {
             id: 1,
             text: 'The cell is the basic structural and functional unit of all living organisms.',
-            quiz: [
-              {
-                question_id: 201,
-                question: 'What is the basic unit of life?',
-                options: [{ option_text: 'The cell' }, { option_text: 'The atom' }],
-                answer: 'The cell',
-              },
-            ],
+          },
+        ],
+        quiz: [
+          {
+            question_id: 201,
+            question: 'What is the basic unit of life?',
+            options: [{ option_text: 'The cell' }, { option_text: 'The atom' }],
+            answer: 'The cell',
           },
         ],
       },

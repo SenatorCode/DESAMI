@@ -1,18 +1,39 @@
 // src/features/study/StudyPage.tsx
-import {useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Heart } from 'lucide-react'
 import { PageError, PageLoader } from '@/components/common/PageState'
 import { useStudyData } from './hooks/useStudyData'
 import { StudyModuleView } from './components/StudyModuleView'
+import { describeStudyLoadError } from './loadError'
 import { useStudyRuntimeStore } from '@/store/study'
+
+function formatCountdown(ms: number) {
+  const total = Math.max(0, Math.ceil(ms / 1000))
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+/** Ticks once a second while `active`, so countdowns re-render. */
+function useNow(active: boolean) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!active) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [active])
+  return now
+}
 
 export function StudyPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
-  const { data, isLoading, isError, refetch } = useStudyData(sessionId!)
+  const { data, isLoading, isError, error, refetch } = useStudyData(sessionId!)
   const [moduleIndex, setModuleIndex] = useState(0)
   const hearts = useStudyRuntimeStore((s) => s.hearts)
   const maxHearts = useStudyRuntimeStore((s) => s.maxHearts)
+  const nextHeartAt = useStudyRuntimeStore((s) => s.nextHeartAt)
+  const now = useNow(nextHeartAt != null)
 
   if (isLoading) {
     return <PageLoader />
@@ -21,7 +42,7 @@ export function StudyPage() {
   if (isError || !data) {
     return (
       <PageError
-        title="Could not load this study session"
+        {...describeStudyLoadError(error)}
         onRetry={() => refetch()}
         action={
           <Link to="/sessions" className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium transition hover:bg-muted">
@@ -63,6 +84,9 @@ export function StudyPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Wait for your hearts to regenerate, or upgrade to keep going.
           </p>
+          {nextHeartAt != null && nextHeartAt > now && (
+            <p className="mt-2 text-sm font-medium">Next heart in {formatCountdown(nextHeartAt - now)}</p>
+          )}
         </div>
       ) : (
         <StudyModuleView

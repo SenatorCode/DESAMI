@@ -13,11 +13,12 @@ export async function mockGetUserProfile(): Promise<UserProfile> {
     streak: 12,
     daily_goal_level: 45,
     quiz_completed: 21,
+    session_completed: 15,
     avg_quiz_score: 94,
     recent: [
-      { session_id: 'mock-completed-1', subject_name: 'Organic Chemistry II', progress: 78 },
-      { session_id: 'mock-completed-2', subject_name: 'Cognitive Neuroscience', progress: 92 },
-      { session_id: 'mock-completed-3', subject_name: 'Macroeconomics', progress: 45 },
+      { session_id: 'mock-completed-1', session_name: 'Organic Chemistry II', progress: 78 },
+      { session_id: 'mock-completed-2', session_name: 'Cognitive Neuroscience', progress: 92 },
+      { session_id: 'mock-completed-3', session_name: 'Macroeconomics', progress: 45 },
     ],
     achievements: [
       { id: 'FIRST_LESSON', title: 'First Timer', description: 'Completed your first desami lesson', icon: '' },

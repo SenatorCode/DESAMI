@@ -75,13 +75,12 @@ export async function getHobbyAnalogy(
 export async function getExplanation(
   sessionId: string,
   moduleId: number,
-  chunkId: number,
   quizId: number
 ): Promise<ExplainResponse> {
   if (USE_MOCKS) return mocks.mockGetExplanation()
 
   const { data } = await api.get<ExplainResponse>(
-    `/api/session/${sessionId}/study/${moduleId}/${chunkId}/${quizId}/explain/`
+    `/api/session/${sessionId}/study/${moduleId}/${quizId}/explain/`
   )
   return data
 }

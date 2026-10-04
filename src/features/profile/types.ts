@@ -1,7 +1,7 @@
 // src/features/profile/types.ts
 export interface RecentSessionSummary {
   session_id: string
-  subject_name: string
+  session_name: string
   progress: number
 }
 
@@ -22,6 +22,7 @@ export interface UserProfile {
   streak: number
   daily_goal_level: number
   quiz_completed: number
+  session_completed: number
   avg_quiz_score: number
   recent: RecentSessionSummary[]
   achievements: ProfileAchievement[]

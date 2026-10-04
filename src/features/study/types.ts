@@ -9,10 +9,13 @@ export interface Session {
   message?: string
 }
 
+// GET api/session/ (Endpoint 5). Note: the list uses `upload_status`, while the
+// single-session poll (Endpoint 6) uses `status`.
 export interface SessionListItem {
   session_id: string
   name?: string
-  status: SessionStatus
+  upload_status: SessionStatus
+  visited_last?: string
 }
 
 export interface StudyOption {
@@ -29,15 +32,15 @@ export interface StudyQuizQuestion {
 export interface StudyChunk {
   id: number
   text: string
-  quiz?: StudyQuizQuestion[]
 }
 
+// v2.6: StudyQuestion belongs to a module, so `quiz` is a sibling of `chunks`.
 export interface StudyModule {
   id: number
   title: string
   chunks: StudyChunk[]
+  quiz?: StudyQuizQuestion[]
 }
-
 export interface StudyData {
   session_id: string
   subject_name: string

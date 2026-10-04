@@ -24,15 +24,9 @@ export function StudyModuleView({ sessionId, module, onModuleComplete }: StudyMo
   const [correctFirstTry, setCorrectFirstTry] = useState<Set<number>>(new Set())
   const [completed, setCompleted] = useState(false)
 
-  // Flattened so all of a module's questions are presented together AFTER
-  // its chunks are read, instead of interrupting reading chunk-by-chunk.
-  const flatQuestions = useMemo(
-    () =>
-      module.chunks.flatMap((chunk) =>
-        (chunk.quiz ?? []).map((question) => ({ chunkId: chunk.id, chunkText: chunk.text, question }))
-      ),
-    [module.chunks]
-  )
+  // v2.6: questions belong to the module, so they're presented together AFTER
+  // all of its chunks have been read.
+  const questions = useMemo(() => module.quiz ?? [], [module.quiz])
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -56,13 +50,13 @@ export function StudyModuleView({ sessionId, module, onModuleComplete }: StudyMo
       setChunkIndex((i) => i + 1)
       return
     }
-    if (flatQuestions.length > 0) setPhase('quiz')
+    if (questions.length > 0) setPhase('quiz')
     else saveMutation.mutate()
   }
 
   const advanceQuestion = (questionId: number, firstTryCorrect: boolean) => {
     if (firstTryCorrect) setCorrectFirstTry((prev) => new Set(prev).add(questionId))
-    const isLastQuestion = questionIndex === flatQuestions.length - 1
+    const isLastQuestion = questionIndex === questions.length - 1
     if (isLastQuestion) saveMutation.mutate()
     else setQuestionIndex((i) => i + 1)
   }
@@ -72,18 +66,18 @@ export function StudyModuleView({ sessionId, module, onModuleComplete }: StudyMo
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-success/40 bg-success/10 p-8 text-center">
         <CheckCircle2 className="text-success" size={32} />
         <p className="font-semibold">Module complete!</p>
-        {flatQuestions.length > 0 && (
+        {questions.length > 0 && (
           <p className="text-sm text-muted-foreground">
-            {correctFirstTry.size}/{flatQuestions.length} correct on first try
+            {correctFirstTry.size}/{questions.length} correct on first try
           </p>
         )}
       </div>
     )
   }
 
-  const totalSteps = module.chunks.length + flatQuestions.length
+  const totalSteps = module.chunks.length + questions.length
   const currentStep = phase === 'reading' ? chunkIndex : module.chunks.length + questionIndex
-  const currentQuestion = flatQuestions[questionIndex]
+  const currentQuestion = questions[questionIndex]
 
   return (
     <div>
@@ -102,18 +96,16 @@ export function StudyModuleView({ sessionId, module, onModuleComplete }: StudyMo
         />
       ) : (
         <div className="rounded-2xl border border-border bg-muted/40 p-6">
-          <p className="leading-relaxed text-foreground">{currentQuestion.chunkText}</p>
-          <div className="mt-4">
-            <CheckInQuestion
-              sessionId={sessionId}
-              moduleId={module.id}
-              chunkId={currentQuestion.chunkId}
-              question={currentQuestion.question}
-              onResolved={(firstTryCorrect) =>
-                advanceQuestion(currentQuestion.question.question_id, firstTryCorrect)
-              }
-            />
-          </div>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Check-in {questionIndex + 1} of {questions.length}
+          </p>
+          <CheckInQuestion
+            key={currentQuestion.question_id}
+            sessionId={sessionId}
+            moduleId={module.id}
+            question={currentQuestion}
+            onResolved={(firstTryCorrect) => advanceQuestion(currentQuestion.question_id, firstTryCorrect)}
+          />
         </div>
       )}
     </div>

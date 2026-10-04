@@ -1,7 +1,9 @@
 // src/features/study/components/SessionList.tsx
 import { useNavigate } from 'react-router-dom'
-import { Loader2, BookOpen, AlertTriangle, Plus } from 'lucide-react'
+import { Loader2, BookOpen, Plus } from 'lucide-react'
 import { useSessions } from '../hooks/useSessions'
+import { PageError } from '@/components/common/PageState'
+import { extractErrorMessage } from '@/lib/axios'
 import type { SessionStatus } from '../types'
 
 const STATUS_CONFIG: Record<SessionStatus, { label: string; dotClass: string; textClass: string }> = {
@@ -12,7 +14,7 @@ const STATUS_CONFIG: Record<SessionStatus, { label: string; dotClass: string; te
 }
 
 export function SessionList() {
-  const { data, isLoading, isError } = useSessions()
+  const { data, isLoading, isError, error, refetch } = useSessions()
   const navigate = useNavigate()
 
   if (isLoading) {
@@ -25,9 +27,11 @@ export function SessionList() {
 
   if (isError) {
     return (
-      <div className="flex items-center gap-2 text-destructive">
-        <AlertTriangle size={16} /> Could not load your sessions.
-      </div>
+      <PageError
+        title="Could not load your sessions"
+        message={extractErrorMessage(error)}
+        onRetry={() => refetch()}
+      />
     )
   }
 
@@ -54,12 +58,12 @@ export function SessionList() {
       ) : (
         <ul className="flex flex-col gap-3">
           {data.map((session) => {
-            const status = STATUS_CONFIG[session.status]
-            const clickable = session.status === 'completed'
+            const status = STATUS_CONFIG[session.upload_status] ?? STATUS_CONFIG.queued
+            const clickable = session.upload_status === 'completed'
             return (
               <li key={session.session_id}>
                 <button
-                  onClick={() => handleOpen(session.session_id, session.status)}
+                  onClick={() => handleOpen(session.session_id, session.upload_status)}
                   disabled={!clickable}
                   className="flex w-full items-center gap-4 rounded-2xl border border-border bg-background px-5 py-4 text-left transition hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:border-border"
                 >

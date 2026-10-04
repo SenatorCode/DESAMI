@@ -14,6 +14,7 @@ import {
   Network,
 } from 'lucide-react'
 import { PageError, PageLoader } from '@/components/common/PageState'
+import { describeStudyLoadError } from '@/features/study/loadError'
 import { useStudyData } from '@/features/study/hooks/useStudyData'
 import {
   placeholderAiSummary,
@@ -25,15 +26,14 @@ import {
 export function SessionHubPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
-   const { data: study, isLoading, isError, refetch } = useStudyData(sessionId!)
+  const { data: study, isLoading, isError, error, refetch } = useStudyData(sessionId!)
 
   if (isLoading) return <PageLoader />
 
     if (isError || !study) {
     return (
       <PageError
-        title="Could not load this session"
-        message="It may still be processing, or you may not have access to it."
+        {...describeStudyLoadError(error)}
         onRetry={() => refetch()}
         action={
           <button
