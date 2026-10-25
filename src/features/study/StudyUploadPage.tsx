@@ -11,7 +11,11 @@ export function StudyUploadPage() {
   return (
     <div className="px-4 py-12 sm:px-6 sm:py-16">
       {sessionId ? (
-        <SessionProcessing sessionId={sessionId} onCompleted={(id) => navigate(`/session/${id}`)} />
+        <SessionProcessing
+        sessionId={sessionId}
+        onCompleted={(id) => navigate(`/session/${id}`)}
+        onUploadAgain={() => setSessionId(null)}
+      />
       ) : (
         <SessionUpload onSessionCreated={setSessionId} />
       )}

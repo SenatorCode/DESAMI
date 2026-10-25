@@ -29,7 +29,21 @@ export const ErrorCode = {
   FILE_TOO_LARGE: 'FILE_TOO_LARGE',
   UNSUPPORTED_FILE_TYPE: 'UNSUPPORTED_FILE_TYPE',
   UPLOAD_QUOTA_EXCEEDED: 'UPLOAD_QUOTA_EXCEEDED',
+
+  // Quizzes
+  QUIZ_GENERATION_FAILED: 'QUIZ_GENERATION_FAILED',
+  QUIZ_DAILY_LIMIT_REACHED: 'QUIZ_DAILY_LIMIT_REACHED',
+  INVALID_QUIZ_DATA: 'INVALID_QUIZ_DATA',
+  QUIZ_NOT_COMPLETED: 'QUIZ_NOT_COMPLETED',
 } as const
+
+export class MalformedResponseError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'MalformedResponseError'
+  }
+}
+
 
 interface ApiErrorBody {
   /** Plain DRF errors (e.g. 405, 404) use `detail` instead of the documented envelope */
@@ -40,6 +54,7 @@ interface ApiErrorBody {
   details?: Record<string, unknown>
   retry_after?: number
   time_until_next_heart?: number
+  resets_at?: string
 }
 
 export interface ParsedApiError {
@@ -57,6 +72,7 @@ export interface ParsedApiError {
   isNetworkError: boolean
   /** Per-field messages from `details` (e.g. { email: 'Email address is already in use.' }) */
   fieldErrors?: Record<string, string>
+  resetsAt?: string
 }
 
 const FALLBACK = 'Something went wrong. Please try again.'
@@ -71,7 +87,7 @@ function toFieldErrors(details: Record<string, unknown>): Record<string, string>
 }
 
 const ENVELOPE_KEYS = new Set([
-  'status', 'error_code', 'message', 'detail', 'details', 'retry_after', 'time_until_next_heart',
+  'status', 'error_code', 'message', 'detail', 'details', 'retry_after', 'time_until_next_heart', 'limit', 'resets_at',
 ])
 
 /**
@@ -93,6 +109,10 @@ function firstDetail(details: Record<string, unknown>): string | undefined {
 }
 
 export function parseApiError(error: unknown): ParsedApiError {
+  if (error instanceof MalformedResponseError) {
+    return { message: error.message, isNetworkError: false }
+  }
+
   if (!axios.isAxiosError(error)) {
     return { message: FALLBACK, isNetworkError: false }
   }
@@ -113,6 +133,7 @@ export function parseApiError(error: unknown): ParsedApiError {
     timeUntilNextHeart:
       typeof body.time_until_next_heart === 'number' ? body.time_until_next_heart : undefined,
     isNetworkError: false,
+    resetsAt: typeof body.resets_at === 'string' ? body.resets_at : undefined,
   }
 }
 

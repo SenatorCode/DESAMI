@@ -58,12 +58,12 @@ export function SessionList() {
       ) : (
         <ul className="flex flex-col gap-3">
           {data.map((session) => {
-            const status = STATUS_CONFIG[session.upload_status] ?? STATUS_CONFIG.queued
-            const clickable = session.upload_status === 'completed'
+            const status = STATUS_CONFIG[session.status]
+            const clickable = session.status === 'completed'
             return (
               <li key={session.session_id}>
                 <button
-                  onClick={() => handleOpen(session.session_id, session.upload_status)}
+                  onClick={() => handleOpen(session.session_id, session.status)}
                   disabled={!clickable}
                   className="flex w-full items-center gap-4 rounded-2xl border border-border bg-background px-5 py-4 text-left transition hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:border-border"
                 >

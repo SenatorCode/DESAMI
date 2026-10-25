@@ -1,5 +1,6 @@
 // src/features/study/api.ts
 import { api } from '@/lib/axios'
+import { normalizeStatus } from '@/lib/status'
 import type {
   Session,
   SessionListItem,
@@ -12,6 +13,13 @@ import type {
 } from './types'
 import * as mocks from './mocks'
 
+type RawSession = Omit<Session, 'status'> & { status: string }
+interface RawSessionListItem {
+  session_id: string; session_name?: string; name?: string
+  status?: string; upload_status?: string; progress?: number; visited_last?: string
+}
+const toSession = (raw: RawSession): Session => ({ ...raw, status: normalizeStatus(raw.status) })
+
 // Set VITE_USE_MOCK_STUDY=true in your local .env to preview Study Mode UI/UX
 // without a live backend. Never set this in Vercel production/preview env vars.
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK_STUDY === 'true'
@@ -21,22 +29,28 @@ export async function createSession(files: File[]): Promise<Session> {
 
   const formData = new FormData()
   files.forEach((file) => formData.append('files', file))
-  const { data } = await api.post<Session>('/api/session/', formData)
-  return data
+  const { data } = await api.post<RawSession>('/api/session/', formData)
+  return toSession(data)
 }
 
 export async function getSessionStatus(sessionId: string): Promise<Session> {
   if (USE_MOCKS) return mocks.mockGetSessionStatus(sessionId)
 
-  const { data } = await api.get<Session>(`/api/session/${sessionId}/`)
-  return data
+  const { data } = await api.get<RawSession>(`/api/session/${sessionId}/`)
+  return toSession(data)
 }
 
 export async function listSessions(): Promise<SessionListItem[]> {
   if (USE_MOCKS) return mocks.mockListSessions()
 
-  const { data } = await api.get<SessionListItem[]>('/api/session/')
-  return data
+  const { data } = await api.get<RawSessionListItem[]>('/api/session/')
+  return data.map((s) => ({
+    session_id: s.session_id,
+    name: s.session_name ?? s.name,
+    status: normalizeStatus(s.status ?? s.upload_status),
+    progress: s.progress,
+    visited_last: s.visited_last,
+  }))
 }
 
 export async function getStudyData(sessionId: string): Promise<StudyData> {
