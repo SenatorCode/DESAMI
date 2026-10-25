@@ -21,6 +21,7 @@ const SessionHubPage = lazy(() =>
 )
 const VerifyOtpPage = lazy(() => import('@/features/auth/VerifyOtpPage').then((m) => ({ default: m.VerifyOtpPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
+const QuizPage = lazy(() => import('@/features/quiz/QuizPage').then((m) => ({ default: m.QuizPage })))
 
 export function AppRoutes() {
   return (
@@ -43,6 +44,7 @@ export function AppRoutes() {
             <Route path="/study/upload" element={<StudyUploadPage />} />
             <Route path="/session/:sessionId" element={<SessionHubPage />} />
           </Route>
+          <Route path="/quiz/:sessionId" element={<QuizPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

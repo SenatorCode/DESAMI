@@ -115,8 +115,8 @@ export function SessionHubPage() {
             title="Quiz"
             subtitle="Test your knowledge"
             description="Formal exam-style questions with detailed feedback on what you missed."
-            action="Coming soon"
-            disabled
+            action="Launch Quiz Mode"
+            onAction={() => navigate(`/quiz/${sessionId}`)}
           />
           <ModeCard
             icon={<Zap size={28} />}
