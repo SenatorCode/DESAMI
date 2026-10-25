@@ -1,9 +1,9 @@
-// src/features/study/hooks/useSessionStatus.ts
 import { useQuery } from '@tanstack/react-query'
+import { isTerminal } from '@/lib/status'
 import { getSessionStatus } from '../api'
 import type { Session } from '../types'
 
-const POLL_INTERVAL_MS = 2000 // per v2.4 §4.3 step 2 — polls every 2 seconds
+const POLL_INTERVAL_MS = 2000
 
 export function useSessionStatus(sessionId: string | null) {
   return useQuery<Session>({
@@ -11,10 +11,9 @@ export function useSessionStatus(sessionId: string | null) {
     queryFn: () => getSessionStatus(sessionId as string),
     enabled: !!sessionId,
     refetchInterval: (query) => {
+      if (query.state.status === 'error') return false
       const status = query.state.data?.status
-      // Stop polling once we land on a terminal state
-      if (status === 'completed' || status === 'failed') return false
-      return POLL_INTERVAL_MS
+      return status && isTerminal(status) ? false : POLL_INTERVAL_MS
     },
   })
 }

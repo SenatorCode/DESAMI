@@ -1,10 +1,7 @@
 import { api } from "@/lib/axios";
 import type { LoginFormValues, SignupFormValues } from "./schema";
+import { toAuthTokens, type AuthTokens } from "@/lib/authTokens";
 
-interface AuthTokens {
-  access_token: string;
-  refresh_token: string;
-}
 
 // v2.6: signup no longer creates the account. The backend emails an OTP and
 // returns this; the account exists only after verifyOtp() succeeds.
@@ -37,8 +34,8 @@ export async function login(values: LoginFormValues): Promise<AuthTokens> {
     payload.username = values.identifier
   }
 
-  const { data } = await api.post<AuthTokens>('/api/login/', payload)
-  return data
+  const { data } = await api.post('/api/login/', payload)
+  return toAuthTokens(data)
 }
 
 export async function signup(values: SignupFormValues): Promise<SignupResponse> {
@@ -65,8 +62,5 @@ export async function loginWithGoogle(googleAccessToken: string): Promise<AuthTo
     access_token: googleAccessToken,
     callback_url: window.location.origin,
   })
-  return {
-    access_token: data.access_token ?? data.access,
-    refresh_token: data.refresh_token ?? data.refresh,
-  }
+  return toAuthTokens(data)
 }

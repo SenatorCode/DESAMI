@@ -47,9 +47,9 @@ export async function mockGetSessionStatus(sessionId: string): Promise<Session> 
 export async function mockListSessions(): Promise<SessionListItem[]> {
   await delay(300)
   return [
-    { session_id: 'mock-completed-1', name: 'Biology', upload_status: 'completed', visited_last: '2026-08-20T14:32:00Z' },
-    { session_id: 'mock-completed-2', name: 'Chemistry', upload_status: 'completed', visited_last: '2026-08-19T09:10:00Z' },
-    { session_id: 'mock-failed-1', name: 'Physics', upload_status: 'failed', visited_last: '2026-08-18T11:00:00Z' },
+    { session_id: 'mock-completed-1', name: 'Biology', status: 'completed', visited_last: '2026-08-20T14:32:00Z' },
+    { session_id: 'mock-completed-2', name: 'Chemistry', status: 'completed', visited_last: '2026-08-19T09:10:00Z' },
+    { session_id: 'mock-failed-1', name: 'Physics', status: 'failed', visited_last: '2026-08-18T11:00:00Z' },
   ]
 }
 

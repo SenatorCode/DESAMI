@@ -1,6 +1,6 @@
-// src/features/study/types.ts
+import type { JobStatus } from '@/lib/status'
 
-export type SessionStatus = 'queued' | 'processing' | 'completed' | 'failed'
+export type SessionStatus = JobStatus
 
 export interface Session {
   session_id: string
@@ -14,7 +14,8 @@ export interface Session {
 export interface SessionListItem {
   session_id: string
   name?: string
-  upload_status: SessionStatus
+  status: SessionStatus        // was upload_status
+  progress?: number
   visited_last?: string
 }
 
