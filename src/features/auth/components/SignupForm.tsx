@@ -24,7 +24,10 @@ export function SignupForm() {
     // v2.6: no account yet — the backend emailed an OTP. Keep the details in memory
     // (needed for "resend") and move to the verification screen.
     onSuccess: (data, values) => {
-      setPending(values, data.email ?? values.email)
+      if (import.meta.env.DEV && data.registration_id == null) {
+        console.warn('[signup] register response had no registration_id — verify-otp will likely fail', data)
+      }
+      setPending(values, data.email ?? values.email, data.registration_id)
       toast.success('Check your email for a verification code.')
       navigate('/verify-otp')
     },

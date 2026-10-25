@@ -20,6 +20,7 @@ export function OtpForm({ email }: { email: string }) {
   const navigate = useNavigate()
   const pending = usePendingSignup((s) => s.pending)
   const clearPending = usePendingSignup((s) => s.clear)
+  const setPending = usePendingSignup((s) => s.setPending)
 
   const [otp, setOtp] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +44,15 @@ export function OtpForm({ email }: { email: string }) {
       clearPending()
     },
     onError: (err) => {
-      const { code, message } = parseApiError(err)
+      const { code, message, fieldErrors } = parseApiError(err)
+      // The verification session id is missing/unknown — retyping the code can't fix that.
+      if (fieldErrors?.registration_id) {
+        setTerminal({
+          title: 'Verification session not found',
+          message: 'We lost track of this signup. Sign up again to get a new code.',
+        })
+        return
+      }
       switch (code) {
         case ErrorCode.OTP_INVALID:
           setError('That code is incorrect. Check it and try again.')
@@ -69,7 +78,9 @@ export function OtpForm({ email }: { email: string }) {
       if (!pending) throw new Error('No pending signup')
       return signup(pending.values)
     },
-    onSuccess: () => {
+        onSuccess: (data) => {
+      // A resend issues a new registration, so the id must be replaced too.
+      if (pending) setPending(pending.values, pending.email, data.registration_id ?? pending.registrationId)
       setOtp('')
       setError(null)
       cooldown.start(RESEND_SECONDS)
@@ -96,7 +107,11 @@ export function OtpForm({ email }: { email: string }) {
       return
     }
     setError(null)
-    verifyMutation.mutate({ email, otp: value })
+        verifyMutation.mutate({
+      email,
+      otp: value,
+      ...(pending?.registrationId != null ? { registration_id: pending.registrationId } : {}),
+    })
   }
 
   const handleChange = (raw: string) => {

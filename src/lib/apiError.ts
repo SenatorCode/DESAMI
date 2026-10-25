@@ -32,6 +32,8 @@ export const ErrorCode = {
 } as const
 
 interface ApiErrorBody {
+  /** Plain DRF errors (e.g. 405, 404) use `detail` instead of the documented envelope */
+  detail?: string
   status?: string
   error_code?: string
   message?: string
@@ -68,6 +70,22 @@ function toFieldErrors(details: Record<string, unknown>): Record<string, string>
   return out
 }
 
+const ENVELOPE_KEYS = new Set([
+  'status', 'error_code', 'message', 'detail', 'details', 'retry_after', 'time_until_next_heart',
+])
+
+/**
+ * Plain DRF serializer errors arrive as `{ field: ["msg"] }` with no envelope
+ * (e.g. `{ registration_id: ["This field is required."] }`). Treat those as field errors.
+ */
+function rawFieldErrors(body: Record<string, unknown>): Record<string, unknown> | undefined {
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(body)) {
+    if (!ENVELOPE_KEYS.has(k) && Array.isArray(v) && typeof v[0] === 'string') out[k] = v
+  }
+  return Object.keys(out).length ? out : undefined
+}
+
 function firstDetail(details: Record<string, unknown>): string | undefined {
   const first = Object.values(details)[0]
   if (Array.isArray(first)) return first.length ? String(first[0]) : undefined
@@ -83,14 +101,15 @@ export function parseApiError(error: unknown): ParsedApiError {
   }
 
   const body = (error.response.data ?? {}) as ApiErrorBody
-  const detail = body.details ? firstDetail(body.details) : undefined
+  const details = body.details ?? (body.error_code ? undefined : rawFieldErrors(body as Record<string, unknown>))
+  const detail = details ? firstDetail(details) : undefined
 
   return {
     status: error.response.status,
     code: body.error_code,
-    message: detail ?? body.message ?? FALLBACK,
+    message: detail ?? body.message ?? (typeof body.detail === 'string' ? body.detail : undefined) ?? FALLBACK,
     retryAfter: typeof body.retry_after === 'number' ? body.retry_after : undefined,
-    fieldErrors: body.details ? toFieldErrors(body.details) : undefined,
+    fieldErrors: details ? toFieldErrors(details) : undefined,
     timeUntilNextHeart:
       typeof body.time_until_next_heart === 'number' ? body.time_until_next_heart : undefined,
     isNetworkError: false,

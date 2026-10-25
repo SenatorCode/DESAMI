@@ -11,6 +11,11 @@ interface AuthTokens {
 export interface SignupResponse {
   message: string
   email: string
+  /**
+   * NOT in the v2.6 docs, but the backend's verify-otp now rejects requests without
+   * it ({registration_id: ["This field is required."]}), so register must return it.
+   */
+  registration_id?: string | number
 }
 
 interface VerifyOtpResponse {
@@ -41,7 +46,11 @@ export async function signup(values: SignupFormValues): Promise<SignupResponse> 
   return data
 }
 
-export async function verifyOtp(values: { email: string; otp: string }): Promise<VerifyOtpResponse> {
+export async function verifyOtp(values: {
+  email: string
+  otp: string
+  registration_id?: string | number
+}): Promise<VerifyOtpResponse> {
   const { data } = await api.post<VerifyOtpResponse>('/api/register/verify-otp/', values)
   return data
 }
