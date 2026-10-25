@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useLocation } from 'react-router-dom'
 import { loginSchema, type LoginFormValues } from '../schema'
 import { login } from '../api'
 import { extractErrorMessage } from '@/lib/axios'
@@ -11,12 +12,14 @@ import { useAuthRedirect } from '../useAuthRedirect'
 export function LoginForm() {
   const setTokens = useAuthStore((s) => s.setTokens)
   const redirectAfterAuth = useAuthRedirect()
+   // After OTP verification we land here with the email pre-filled.
+  const prefillEmail = (useLocation().state as { email?: string } | null)?.email ?? ''
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema), defaultValues: { identifier: prefillEmail } })
 
   const mutation = useMutation({
     mutationFn: login,

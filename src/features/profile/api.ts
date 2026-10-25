@@ -12,6 +12,6 @@ const USE_MOCKS = import.meta.env.VITE_USE_MOCK_STUDY === 'true'
 
 export async function getUserProfile(): Promise<UserProfile> {
   if (USE_MOCKS) return mockGetUserProfile()
-  const { data } = await api.get<UserProfile>('/api/users/me')
+  const { data } = await api.get<UserProfile>('/api/users/me/')
   return data
 }

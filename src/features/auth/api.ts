@@ -6,11 +6,20 @@ interface AuthTokens {
   refresh_token: string;
 }
 
-// Add above signup()
-interface SignupResponse {
-  status: string
+// v2.6: signup no longer creates the account. The backend emails an OTP and
+// returns this; the account exists only after verifyOtp() succeeds.
+export interface SignupResponse {
   message: string
-  user_id: number
+  email: string
+  /**
+   * NOT in the v2.6 docs, but the backend's verify-otp now rejects requests without
+   * it ({registration_id: ["This field is required."]}), so register must return it.
+   */
+  registration_id?: string | number
+}
+
+interface VerifyOtpResponse {
+  message: string
 }
 
 export async function login(values: LoginFormValues): Promise<AuthTokens> {
@@ -28,12 +37,21 @@ export async function login(values: LoginFormValues): Promise<AuthTokens> {
     payload.username = values.identifier
   }
 
-  const { data } = await api.post<AuthTokens>('/api/login', payload)
+  const { data } = await api.post<AuthTokens>('/api/login/', payload)
   return data
 }
 
 export async function signup(values: SignupFormValues): Promise<SignupResponse> {
-  const { data } = await api.post<SignupResponse>('/api/register', values)
+  const { data } = await api.post<SignupResponse>('/api/register/', values)
+  return data
+}
+
+export async function verifyOtp(values: {
+  email: string
+  otp: string
+  registration_id?: string | number
+}): Promise<VerifyOtpResponse> {
+  const { data } = await api.post<VerifyOtpResponse>('/api/register/verify-otp/', values)
   return data
 }
 

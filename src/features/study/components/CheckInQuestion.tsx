@@ -1,17 +1,17 @@
 // src/features/study/components/CheckInQuestion.tsx
 import { useState } from 'react'
 import { CorrectionLoop } from './CorrectionLoop'
-import type { StudyQuizQuestion } from '../types'
+import type { StudyChunk, StudyQuizQuestion } from '../types'
 
 interface CheckInQuestionProps {
   sessionId: string
   moduleId: number
-  chunkId: number
+  chunks: StudyChunk[]
   question: StudyQuizQuestion
   onResolved: (firstTryCorrect: boolean) => void
 }
 
-export function CheckInQuestion({ sessionId, moduleId, chunkId, question, onResolved }: CheckInQuestionProps) {
+export function CheckInQuestion({ sessionId, moduleId, chunks, question, onResolved }: CheckInQuestionProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [showCorrection, setShowCorrection] = useState(false)
   const [resolved, setResolved] = useState(false)
@@ -59,7 +59,7 @@ export function CheckInQuestion({ sessionId, moduleId, chunkId, question, onReso
           <CorrectionLoop
             sessionId={sessionId}
             moduleId={moduleId}
-            chunkId={chunkId}
+            chunks={chunks}
             question={question}
             onValidated={handleValidated}
           />
