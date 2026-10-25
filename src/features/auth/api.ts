@@ -1,0 +1,72 @@
+import { api } from "@/lib/axios";
+import type { LoginFormValues, SignupFormValues } from "./schema";
+
+interface AuthTokens {
+  access_token: string;
+  refresh_token: string;
+}
+
+// v2.6: signup no longer creates the account. The backend emails an OTP and
+// returns this; the account exists only after verifyOtp() succeeds.
+export interface SignupResponse {
+  message: string
+  email: string
+  /**
+   * NOT in the v2.6 docs, but the backend's verify-otp now rejects requests without
+   * it ({registration_id: ["This field is required."]}), so register must return it.
+   */
+  registration_id?: string | number
+}
+
+interface VerifyOtpResponse {
+  message: string
+}
+
+export async function login(values: LoginFormValues): Promise<AuthTokens> {
+  const isEmail = values.identifier.includes('@')
+
+  // Backend expects either `username` OR `email` present — not both, and not
+  // the unused one sent as an empty string. Omit the key entirely instead.
+  const payload: { username?: string; email?: string; password: string } = {
+    password: values.password,
+  }
+
+  if (isEmail) {
+    payload.email = values.identifier
+  } else {
+    payload.username = values.identifier
+  }
+
+  const { data } = await api.post<AuthTokens>('/api/login/', payload)
+  return data
+}
+
+export async function signup(values: SignupFormValues): Promise<SignupResponse> {
+  const { data } = await api.post<SignupResponse>('/api/register/', values)
+  return data
+}
+
+export async function verifyOtp(values: {
+  email: string
+  otp: string
+  registration_id?: string | number
+}): Promise<VerifyOtpResponse> {
+  const { data } = await api.post<VerifyOtpResponse>('/api/register/verify-otp/', values)
+  return data
+}
+
+export async function fetchHobbies(): Promise<Array<{ hobby_name: string; hobby_description: string }>> {
+  const { data } = await api.get('/api/hobbies/')
+  return data
+}
+
+export async function loginWithGoogle(googleAccessToken: string): Promise<AuthTokens> {
+  const { data } = await api.post('/api/auth-google/', {
+    access_token: googleAccessToken,
+    callback_url: window.location.origin,
+  })
+  return {
+    access_token: data.access_token ?? data.access,
+    refresh_token: data.refresh_token ?? data.refresh,
+  }
+}
